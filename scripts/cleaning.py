@@ -54,7 +54,7 @@ status_map_bosta = {
 }
 
 # -------------------- unify city names --------------------
-def unify_city_names(df, column='City', threshold=90):
+def unify_city_names(df, column='HUB', threshold=90):
     if column not in df.columns:
         return df
     cities = df[column].dropna().unique()
@@ -93,7 +93,7 @@ def unify_city_names(df, column='City', threshold=90):
 # -------------------- common cleaning --------------------
 def common_clean(df, status_map=None, rename_map=None, payment_map=None):
     df = df.dropna(how='all').dropna(axis=1, how='all')
-    df = unify_city_names(df, 'City')
+    df = unify_city_names(df, 'HUB')
     if rename_map:
         df = df.rename(columns=rename_map)
     # Payment Type safe replace only if column exists
@@ -109,7 +109,7 @@ def common_clean(df, status_map=None, rename_map=None, payment_map=None):
 
     # select only existing columns in that order
     columns = ['AWB', 'OrderID', 'Pickup Date', 'Status', 'Delay', 'Status Date', 'Shipping Company',
-               'Description', 'Payment Type', 'COD Value', 'Number Of attempts', 'City']
+               'Description', 'Payment Type', 'COD Value', 'Number Of attempts', 'HUB']
     df = df[[c for c in columns if c in df.columns]]
     return df
 
@@ -353,7 +353,7 @@ def mylerz_clean(input_folder: Path, output_folder: Path):
     rename_map = {
         'Reference Number': 'OrderID',
         'Tracking Number': 'AWB',
-        'Destination Hub': 'City',
+        'Destination Hub': 'HUB',
         'COD': 'COD Value',
         'Number of Attempts': 'Number Of attempts',
         'Pick-Up Date': 'Pickup Date'
@@ -411,7 +411,7 @@ def aramex_clean(input_folder: Path, output_folder: Path):
     rename_map = {
         'Shipper Reference': 'OrderID',
         'Last Status Action Date': 'Status Date',
-        'Destination City': 'City',
+        'Destination City': 'HUB',
         'Commodity Description': 'Description',
         'Total Delivery Attempts': 'Number Of attempts',
         'Pickup Date (Creation Date)': 'Pickup Date'
@@ -456,7 +456,7 @@ def bosta_clean(input_folder: Path, output_folder: Path):
         'Tracking Number': 'AWB',
         'Business Reference Number': 'OrderID',
         'Updated at': 'Status Date',
-        'DropOff City': 'City',
+        'DropOff City': 'HUB',
         'Cod Amount': 'COD Value',
         'Picked-Up Date': 'Pickup Date'
     }
@@ -546,8 +546,8 @@ def clean_files(input_folder: Path, output_folder: Path):
 
     # Concatenate cleaned xlsx (we saved xlsx files in output folder)
     conacat = df_ShippingCompanies(output_folder, save_path=output_folder / "shipping_companies.xlsx")
-    if not conacat.empty and 'City' in conacat.columns:
-        conacat = unify_city_names(conacat, column='City', threshold=80)
+    if not conacat.empty and 'HUB' in conacat.columns:
+        conacat = unify_city_names(conacat, column='HUB', threshold=80)
         save_df_to_xlsx(conacat, output_folder / "shipping_companies.xlsx")
 
     print("Done.")
